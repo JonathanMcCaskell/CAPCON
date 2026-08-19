@@ -12,10 +12,13 @@ import { GoogleGenAI, Type } from "@google/genai";
 import "dotenv/config";
 
 const app = express();
-const port = process.env.PORT || 8080;
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Server running on port ${port}`);
+// Ensure PORT is defined using the environment variable provided by Cloud Run, falling back to 8080 if local
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
 });
+
 
 
 // Set up JSON parsing with a large size limit to accommodate base64 photos
