@@ -15,9 +15,10 @@ const app = express();
 // Ensure PORT is defined using the environment variable provided by Cloud Run, falling back to 8080 if local
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-});
+declare global {
+  // eslint-disable-next-line no-var
+  var __capcon_server_started__: boolean | undefined;
+}
 
 
 
@@ -383,9 +384,12 @@ async function startServer() {
     console.log("Serving static production assets from /dist.");
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Inventory App server running on http://0.0.0.0:${PORT}`);
-  });
+  if (!globalThis.__capcon_server_started__) {
+    globalThis.__capcon_server_started__ = true;
+    app.listen(Number(PORT), "0.0.0.0", () => {
+      console.log(`Inventory App server running on http://0.0.0.0:${PORT}`);
+    });
+  }
 }
 
 startServer();
