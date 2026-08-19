@@ -1,0 +1,6 @@
+{
+  "name": "Authentic Inventory",
+  "description": "A comprehensive inventory system with camera capture, auto-filled price estimates via Gemini, Firestore persistence, and Excel export.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

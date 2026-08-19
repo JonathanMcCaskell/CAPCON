@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "An item in the visual asset registry inventory",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The item name or clue"
+        },
+        "category": {
+          "type": "string",
+          "description": "The item category"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The current count/quantity of the item in stock"
+        },
+        "averagePriceOnline": {
+          "type": "number",
+          "description": "The average estimated online price of the item"
+        },
+        "description": {
+          "type": "string",
+          "description": "The item details, specs, model, etc."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "The dataURL base64 or URL of the item image"
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "A list of multiple photo dataURLs for the item"
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "The AI appraisal confidence score (0 to 100)"
+        },
+        "otherPossibilities": {
+          "type": "array",
+          "description": "Alternative item matches analyzed by Gemini AI"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "The epoch timestamp of when the item was registered"
+        }
+      },
+      "required": ["name", "category", "quantity", "averagePriceOnline", "createdAt"]
+    },
+    "HistoryLog": {
+      "title": "HistoryLog",
+      "description": "An audit log entry tracking changes and events in the inventory",
+      "type": "object",
+      "properties": {
+        "itemName": {
+          "type": "string",
+          "description": "Name of the item related to the log"
+        },
+        "action": {
+          "type": "string",
+          "description": "Action performed: created, updated, deleted, quantity_change, imported"
+        },
+        "details": {
+          "type": "string",
+          "description": "Textual summary of the action"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Epoch timestamp of when the event occurred"
+        },
+        "itemId": {
+          "type": "string",
+          "description": "ID of the affected inventory item"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the affected inventory item"
+        },
+        "changes": {
+          "type": "array",
+          "description": "Specific list of field diffs"
+        }
+      },
+      "required": ["itemName", "action", "details", "timestamp"]
+    }
+  },
+  "firestore": {
+    "inventory/{itemId}": {
+      "schema": "InventoryItem",
+      "description": "A collection containing all inventory items"
+    },
+    "history_logs/{logId}": {
+      "schema": "HistoryLog",
+      "description": "A collection containing audit history records"
+    }
+  }
+}

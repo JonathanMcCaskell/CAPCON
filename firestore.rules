@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation helper for InventoryItem
+    function isValidInventoryItem(data) {
+      return data.keys().hasAll(['name', 'category', 'quantity', 'averagePriceOnline', 'createdAt'])
+        && data.keys().size() <= 20 
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+        && (data.quantity is int || data.quantity is float) && data.quantity >= 0
+        && (data.averagePriceOnline is float || data.averagePriceOnline is int) && data.averagePriceOnline >= 0
+        && (data.createdAt is int || data.createdAt is float)
+        && (!data.keys().hasAny(['description']) || (data.description is string && data.description.size() <= 10000))
+        && (!data.keys().hasAny(['imageUrl']) || (data.imageUrl is string && data.imageUrl.size() <= 2000000))
+        && (!data.keys().hasAny(['imageUrls']) || (data.imageUrls is list && data.imageUrls.size() <= 20))
+        && (!data.keys().hasAny(['confidenceScore']) || ((data.confidenceScore is int || data.confidenceScore is float) && data.confidenceScore >= 0 && data.confidenceScore <= 100))
+        && (!data.keys().hasAny(['otherPossibilities']) || (data.otherPossibilities is list && data.otherPossibilities.size() <= 20))
+        && (!data.keys().hasAny(['priceSources']) || (data.priceSources is list && data.priceSources.size() <= 30))
+        && (!data.keys().hasAny(['originalPrice']) || ((data.originalPrice is float || data.originalPrice is int) && data.originalPrice >= 0))
+        && (!data.keys().hasAny(['discountPercent']) || ((data.discountPercent is float || data.discountPercent is int) && data.discountPercent >= 0 && data.discountPercent <= 100));
+    }
+
+    // Validation helper for HistoryLog
+    function isValidHistoryLog(data) {
+      return data.keys().hasAll(['itemName', 'action', 'details', 'timestamp'])
+        && data.keys().size() <= 10
+        && data.itemName is string && data.itemName.size() <= 200
+        && data.action is string && data.action.size() <= 50
+        && data.details is string && data.details.size() <= 3000
+        && (data.timestamp is int || data.timestamp is float)
+        && (!data.keys().hasAny(['itemId']) || (data.itemId is string && data.itemId.size() <= 128))
+        && (!data.keys().hasAny(['category']) || (data.category is string && data.category.size() <= 100))
+        && (!data.keys().hasAny(['changes']) || (data.changes is list && data.changes.size() <= 30));
+    }
+
+    match /inventory/{itemId} {
+      allow read: if true;
+      allow create: if isValidInventoryItem(incoming());
+      allow update: if isValidInventoryItem(incoming());
+      allow delete: if true;
+    }
+
+    match /history_logs/{logId} {
+      allow read: if true;
+      allow create: if isValidHistoryLog(incoming());
+      allow update: if isValidHistoryLog(incoming());
+      allow delete: if true;
+    }
+  }
+}
